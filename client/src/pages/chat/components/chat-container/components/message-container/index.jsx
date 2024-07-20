@@ -16,7 +16,7 @@ const MessageContainer = () => {
     selectedChatMessages,
     setSelectedChatMessages,
     setIsDownloading,
-    setFileDownloadProgress
+    setFileDownloadProgress,
   } = useAppStore();
 
   const [showImage, setShowImage] = useState(false);
@@ -80,9 +80,9 @@ const MessageContainer = () => {
     const response = await apiClient.get(`${HOST}/${url}`, {
       responseType: "blob",
       onDownloadProgress: (progressEvent) => {
-        const {loaded, total} = progressEvent;
+        const { loaded, total } = progressEvent;
         setFileDownloadProgress(Math.round((100 * loaded) / total));
-      }
+      },
     });
     const urlBlob = window.URL.createObjectURL(new Blob([response.data]));
     const link = document.createElement("a");
