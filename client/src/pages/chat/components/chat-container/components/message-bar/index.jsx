@@ -7,6 +7,7 @@ import { useRef, useState, useEffect } from "react";
 import { GrAttachment } from "react-icons/gr";
 import { IoSend } from "react-icons/io5";
 import { RiEmojiStickerLine } from "react-icons/ri";
+import { toast } from "sonner";
 
 const MessageBar = () => {
   const emojiRef = useRef();
@@ -39,6 +40,10 @@ const MessageBar = () => {
   };
 
   const handleSendMessage = async () => {
+    if (message.length === 0) {
+      toast.error("message is empty");
+      return;
+    }
     if (selectedChatType === "contact") {
       socket.emit("sendMessage", {
         sender: userInfo.id,
