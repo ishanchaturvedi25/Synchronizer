@@ -70,8 +70,10 @@ npm install
 
 - Create a .env file and add your MongoDB URI and JWT secret:
 
+```bash
 MONGO_URI=your_mongodb_uri
 JWT_SECRET=your_jwt_secret
+```
 
 - Start the server:
 
