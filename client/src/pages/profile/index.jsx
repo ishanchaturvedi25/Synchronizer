@@ -1,6 +1,6 @@
 import { useAppStore } from "@/store";
 import { useEffect, useRef, useState } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { IoArrowBack } from "react-icons/io5";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { colors, getColor } from "@/lib/utils";
@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { apiClient } from "@/lib/api-client";
 import {
-  HOST,
   ADD_PROFILE_IMAGE_ROUTE,
   UPDATE_PROFILE_ROUTE,
   REMOVE_PROFILE_IMAGE_ROUTE,
@@ -33,7 +32,7 @@ const Profile = () => {
       setSelectedColor(userInfo.color);
     }
     if (userInfo.image) {
-      setImage(`${HOST}/${userInfo.image}`);
+      setImage(userInfo.image);
     }
   }, [userInfo]);
 

@@ -1,6 +1,6 @@
 import { apiClient } from "@/lib/api-client";
 import { useAppStore } from "@/store";
-import { GET_ALL_MESSAGES_ROUTES, GET_CHANNEL_MESSAGES, HOST } from "@/utils/constants";
+import { GET_ALL_MESSAGES_ROUTES, GET_CHANNEL_MESSAGES } from "@/utils/constants";
 import moment from "moment";
 import { useEffect, useRef, useState } from "react";
 import { MdFolderZip } from "react-icons/md";
@@ -93,26 +93,34 @@ const MessageContainer = () => {
   };
 
   const downloadFile = async (url) => {
-    setIsDownloading(true);
-    setFileDownloadProgress(0);
-    const response = await apiClient.get(`${HOST}/${url}`, {
-      responseType: "blob",
-      onDownloadProgress: (progressEvent) => {
-        const { loaded, total } = progressEvent;
-        setFileDownloadProgress(Math.round((100 * loaded) / total));
-      },
-    });
-    const urlBlob = window.URL.createObjectURL(new Blob([response.data]));
-    const link = document.createElement("a");
-    link.href = urlBlob;
-    link.setAttribute("download", url.split("/").pop());
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    window.URL.revokeObjectURL(urlBlob);
-    setIsDownloading(false);
-    setFileDownloadProgress(0);
+    try {
+      setIsDownloading(true);
+      setFileDownloadProgress(0);
+
+      await apiClient.head(`${url}`);
+
+      const response = await apiClient.get(`${url}`, {
+        responseType: "blob",
+        onDownloadProgress: (e) => {
+          if (!e.total) return;
+          setFileDownloadProgress(Math.round((100 * e.loaded) / e.total));
+        }
+      });
+
+      const blobUrl = window.URL.createObjectURL(response.data);
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = url.split("/").pop();
+      link.click();
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (err) {
+      console.error(err);
+      setFileDownloadProgress(0);
+    } finally {
+      setIsDownloading(false);
+    }
   };
+
 
   const renderDMMessages = (message) => (
     <div
@@ -148,7 +156,7 @@ const MessageContainer = () => {
               }}
             >
               <img
-                src={`${HOST}/${message.fileUrl}`}
+                src={message.fileUrl}
                 height={300}
                 width={300}
               />
@@ -210,7 +218,7 @@ const MessageContainer = () => {
               }}
             >
               <img
-                src={`${HOST}/${message.fileUrl}`}
+                src={message.fileUrl}
                 height={300}
                 width={300}
               />
@@ -236,7 +244,7 @@ const MessageContainer = () => {
             <Avatar className="h-8 w-8 rounded-full overflow-hidden">
               {message.sender.image && (
                 <AvatarImage
-                  src={`${HOST}/${message.sender.image}`}
+                  src={message.sender.image}
                   alt="profile"
                   className="object-cover w-full h-full bg-black"
                 />
@@ -275,7 +283,7 @@ const MessageContainer = () => {
         <div className="fixed z-[1000] top-0 left-0 h-[100vh] w-[100vw] flex items-center justify-center backdrop-blur-lg flex-col">
           <div>
             <img
-              src={`${HOST}/${imageURL}`}
+              src={imageURL}
               className="h-[80vh] w-full bg-cover"
             />
           </div>

@@ -1,7 +1,8 @@
 import { compare } from "bcrypt";
 import User from "../models/UserModel.js";
 import jwt from "jsonwebtoken";
-import { renameSync, unlinkSync } from "fs";
+import fs, { renameSync } from "fs";
+import { uploadFileOnCloudinary, removeFileFromCloudinary } from "../utils/cloudinary.js";
 
 const maxAge = 3 * 24 * 60 * 60 * 1000;
 
@@ -140,12 +141,19 @@ export const addProfileImage = async (request, response, next) => {
     }
 
     const date = Date.now();
-    let fileName = "uploads/profiles/" + date + request.file.originalname;
+    let fileName = "uploads/temp/" + date + request.file.originalname;
     renameSync(request.file.path, fileName);
+    
+    let fileUrl = await uploadFileOnCloudinary(fileName);
+    await fs.promises.unlink(fileName);
+
+    if (!fileUrl) {
+      throw new Error("Error uploading file to cloudinary");
+    }
 
     const updatedUser = await User.findByIdAndUpdate(
       request.userId,
-      { image: fileName },
+      { image: fileUrl },
       { new: true, runValidators: true }
     );
 
@@ -168,7 +176,8 @@ export const removeProfileImage = async (request, response, next) => {
     }
 
     if (user.image) {
-      unlinkSync(user.image);
+      console.log("Removing image from cloudinary", user.image);
+      await removeFileFromCloudinary(user.image);
     }
 
     user.image = null;

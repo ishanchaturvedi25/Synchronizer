@@ -12,7 +12,7 @@ import { verifyToken } from "../middlewares/AuthMiddleware.js";
 import multer from "multer";
 
 const authRoutes = Router();
-const upload = multer({ dest: "uploads/profiles" });
+const upload = multer({ dest: "uploads/temp" });
 
 authRoutes.post("/signup", signup);
 authRoutes.post("/login", login);

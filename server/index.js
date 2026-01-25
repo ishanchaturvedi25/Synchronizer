@@ -1,5 +1,6 @@
-import express from "express";
 import dotenv from "dotenv";
+dotenv.config();
+import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import mongoose from "mongoose";
@@ -9,7 +10,6 @@ import setupSocket from "./socket.js";
 import messagesRoutes from "./routes/MessagesRoutes.js";
 import channelRoutes from "./routes/ChannelRoutes.js";
 
-dotenv.config();
 
 const app = express();
 const port = process.env.PORT || 3001;
@@ -24,9 +24,6 @@ app.use(
     credentials: true,
   })
 );
-
-app.use("/uploads/profiles", express.static("uploads/profiles"));
-app.use("/uploads/files", express.static("uploads/files"));
 
 app.use(cookieParser());
 app.use(express.json());
@@ -44,4 +41,4 @@ setupSocket(server);
 
 mongoose
   .connect(databaseURL)
-  .then(() => console.log("DB Connection Successfull"));
+  .then(() => console.log("DB Connection Successful"));
